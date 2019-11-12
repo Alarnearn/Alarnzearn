@@ -5,9 +5,7 @@
               
 # 个人学习的README的各种markdown语法 
 < --Headers (头部) -->
-# This is an <h1> tag
-## This is an <h2> tag
-###### This is an <h6> tag
+#  <h1>  ##  <h2>   ######  <h6> 
 
 <-- Emphasis (重点部分) -->
 
