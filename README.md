@@ -24,11 +24,11 @@
 
 ### <-- link (链接) -->
 * 链接外部URL  http://github.com - automatic!   
-   eg：######[GitHub](http://github.com)  <br>效果：[GitHub](http://github.com)
+   eg：<tab><tab>[GitHub](http://github.com)  <br>效果：[GitHub](http://github.com)
 * 链接本仓库里的URL  [照片](./照片)
 
 ### <-- anchor (锚点) -->
-语法	                        效果
-######[回到顶部](#readme)	     [回到顶部](#readme)	
+语法：<tab><tab>[回到顶部](#readme)	     
+效果：[回到顶部](#readme)	
 
 ### 最后强推的  _学习圣地[（完结）（小甲鱼）数据结构和算法_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili  ](https://www.bilibili.com/video/av2975983)
