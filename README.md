@@ -4,12 +4,12 @@
               2、学习Linux搭载环境相关知识
               
 # 个人学习的README的各种markdown语法 
-### < --Headers (标题) -->
+### < --Headers (标题部分) -->
 #   这是h1  
   ##   这是h2   
     ######   这是h6 
 
-### <-- Emphasis (重点部分) -->
+### <-- Emphasis (字体部分) -->
   *这样写出来的是斜体字*        
   _这样写出来的也是斜体字_
   **这样写出来的是加粗的字**       
@@ -31,8 +31,11 @@ URL即图片的url地址，如果引用本仓库中的图片，直接使用相�
 
 ### <-- link (链接) -->
 * 链接外部URL  http://github.com - automatic!   
-   eg： [GitHub](http://github.com)
+   eg：######[GitHub](http://github.com)  效果：[GitHub](http://github.com)
 * 链接本仓库里的URL  [照片](./照片)
 
+### <-- anchor (锚点) -->
+语法	                        效果
+######[回到顶部](#readme)	     [回到顶部](#readme)	
 
 ### 最后强推的 *学习圣地[（完结）（小甲鱼）数据结构和算法_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili  ](https://www.bilibili.com/video/av2975983)
