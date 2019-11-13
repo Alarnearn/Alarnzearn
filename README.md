@@ -30,8 +30,9 @@
 URL即图片的url地址，如果引用本仓库中的图片，直接使用相对路径就可了，如果引用其他github仓库中的图片要注意格式，即：仓库地址/raw/分支名/图片路径
 
 ### <-- link (链接) -->
-链接外部URL  http://github.com - automatic!   [GitHub](http://github.com)
-链接本仓库里的URL  [照片](./照片)
+* 链接外部URL  http://github.com - automatic!   
+   eg： [GitHub](http://github.com)
+* 链接本仓库里的URL  [照片](./照片)
 
 
 ### 最后强推的 *学习圣地[（完结）（小甲鱼）数据结构和算法_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili  ](https://www.bilibili.com/video/av2975983)
