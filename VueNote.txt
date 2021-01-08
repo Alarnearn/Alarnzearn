@@ -1,0 +1,933 @@
+一、Vue基础
+1.模板语法
+    (1)插值
+        a.文本{{}}
+        b.纯HTML
+            v-html,防止XSS,csrf(
+                (1)前端过滤
+                (2)后台转义( < > &lt; &gt)
+                (3)给cookie加上属性http
+            )
+        c.表达式
+    (2)指令：是带有v-前缀的特殊属性
+        v-bind
+        v-if v-show
+        v-on:click
+        v-for
+    (3)缩写
+    v-bind:src  =>  :src
+    v-on:click  =>  @click
+
+2.class与style
+    (1)绑定HTML Class
+            -对象语法
+            -数组语法
+    (2)绑定内联样式
+            -对象语法
+            -数组语法
+            //需要将 font-size => fontSize
+
+3.条件渲染
+    (1)v-if
+    (2)v-else v-else-if
+    (3)template v-if,包装元素template不会被创建
+    (4)v-show
+
+4.列表渲染
+    (1)v-for(特殊 v-for="n in 10")
+        a.in
+        b.of
+    (2)key:
+        *跟踪每个节点的身份，从而重用和重新排序现有元素
+        *理想的key值是每项都有的且唯一的id。 data.id
+    (3) 数组更新检测
+        1）试用一下方法操作数组，可以检测变动
+            push()  pop()  shift()  unshift()  splice()  sort()   reverse()
+        
+        2）filter()  contact()  和 slice()  map() 新数组替换旧数组 因为这些方法并不会改变原数组
+
+        3）不能检测以下变动的数组
+
+        vm.items[indexOfItem] = newValue
+        解决：a. Vue.set(example1.items,indexOfItem, newValue)    
+            b. splice
+    拓展：
+
+        简单过滤需求：利用输入框的字符，过滤出包含字段的元素，filter 方法过滤，计算属性保留原始数据进行重复操作
+            1)原输入框进行数据绑定 @click="aaa()" v-model="xxx"
+            2) xxx=''
+            3) 利用filter()方法可以实现过滤
+                    aaa(){
+                        var newlist = this.list.filter(item=>item.indexOf(this.xxx)>-1)
+                        this.datalist = newlist
+                    }
+            弊端：数据需要备份保留，永远操作备份数据替换，保留原始数据首次操作
+
+            解决：计算属性可以处理
+
+5.事件处理
+    1)监听事件-直接触发代码
+    2)方法事件处理器-写函数名   handleClick
+    3)内敛处理器方法-执行函数表达式  handleClick($event)  $event 事件对象
+    4)事件修饰符 
+        事件冒泡解决 
+            1）原生JS阻止冒泡 
+            方法(e){
+                e.stopPropagation();
+            }
+            2)vue阻止冒泡
+                @click.stop="handleClick($event)"
+            3)vue阻止默认行为
+                @click.prevent="handleClick()"
+            4)vue只允许本事件源操作
+                @click.self="handleClick()"
+            5)vue只执行一次就解绑不再触发
+                @click.once="handleClick()"
+        
+    5)按键修饰符
+        1）原生JS是需要对按键进行if分支判断键值操作
+        2）vue直接操作，但部分需要根据键值操作
+            @keyup.enter="handleClick($event)"
+            @keyup.13="handleClick($event)"
+
+
+6.表单控件绑定/双向数据绑定
+
+二、Vue组件
+1.axios与fetch实现数据请求
+    (1)fetch(W3C标准)
+    目前未普遍用原因:
+        XMLHttpRequest是一个设计粗糙的API，配置和调用的方式非常混乱，而且基于事件的异步模型写起来不友好。
+        兼容性不好
+        注意：Fetch请求默认的是不带cookie的，需要设置fetch(url,{credentials:'include'})
+    (2)axios
+        axios.get("")  promise对象
+        axios.post("")  promise对象
+        axios.put("")
+        axios.delete("")
+
+        axios({
+            url:'/gateway?type=2',
+            headers:{
+                'X-Client-Info': '{"a":"3000","ch":"1002","v":"1.0.0","e":"1"}',
+                'X-Host': 'mall.cfg.common-banner'
+            }
+        }).then(res=>{
+            console.log(res.data)
+        })
+        返回的数据会被包装
+
+        {
+            *:*
+            data:真实的后期数据
+        }
+
+        ------------------------------------
+        
+        // post - json字符串
+        let baseURL = 'http://localhost:8888'
+        let url = '/user/login'
+        
+        axios({
+            url,
+            baseURL,
+            method:"POST",
+            data:{                // axios会自动将data中对象转换为json字符串，而jquery是将其转换为查询字符串
+                username:"admin1",
+                password:"123321"
+            }
+            }).then(response => {   // axios基于承诺对象，axios() 实际上发送了请求并且返回了一个承诺对象
+            // axios会对response进行二次封装
+            console.log(response.data.data.token);
+        })
+
+2.计算属性
+    复杂逻辑，模板难以维护
+    (1) 基础例子
+    (2) 计算缓存  VS  methods
+        a.计算属性是基于它们的依赖进行缓存的
+        b.计算属性只有在它的相关依赖发生改变的时候才会重新求值
+    (3) 计算属性  VS  watch
+        v-model
+
+计算属性-模糊查询：
+    写一个计算属性
+    v-for="data in getMyDatalist"  v-model="mytext"
+
+    computed:{
+        getMyDatalist(){
+            return this.datalist.filter(item=>item.indexOf(this.mytext)>-1)
+        }
+    }
+
+3.Mixins
+    虚拟dom和diff算法
+        最大程度保证组件和节点的可复用性，减少了对于DOM的频繁操作，增加网页利用性。
+    1）把树按照层级分解
+    2）同key值对比  没有key值就是盲目对比，
+    3）同组件对比
+        only<div>       component
+
+5.组件化开发基础
+    扩展HTML元素，封装可重用的代码
+
+6.组件注册方式
+    a.全局组件
+        Vue.component
+    b.局部组件
+        局部组件不可以随便使用
+
+7.组件缩写方式与Vue实例的区别
+    *自定义组件需要有一个root element
+    *父子组件的data是无法共享的,父子组件之间的作用域是隔离的
+    *组件可以有data,methods,computed....,但是data必须是一个函数
+
+8.组件通信
+    1.父子组件传值（props down,events up）属性向下传，如果传动态值要用冒号v-bind绑定动态值。如果组件是已经写好的，但是使用时又不确定是否使用有误，可以在组件设置属性验证。
+        通过属性往子组件传递，属性传值，如果要传父组件状态，别忘了动态绑定. 父传子的时候，子组件用props接收，孩子可以用this.值名随便使用.
+        子传父靠事件，事件定义在父组件里面.(事件符名字可以随便起，子组件传的时候的$符号是固定触发事件的方法)
+
+    2.属性验证
+        props:{name:Number}
+        Number,String,Boolean,Array,Object,Function,null(不限制类型)
+    3.事件机制
+        a.使用$on(eventName)监听事件
+        b.使用$emit(eventName)触发事件
+    4.Ref
+        ref放在标签上拿到的是原生节点；ref放在组件上，拿到的是组件对象。
+        父传子可以直接用，但不推荐使用，因为耦合度太高，需要对孩子命名。
+        <input ref="mytext" /> this.$refs.mytext.value
+    5.事件总线（中央事件组件）
+        非父子通信
+        var bus = new Vue();
+        *mouted生命周期中进行监听
+        只要一个组件愿意用$on()来监听，就有另一个组件能够用$emit()来触发,但是触发的名字要与坚挺的名字一致，否则就匹配不上。
+        
+9.动态组件
+    <component>元素，动态地绑定多个组件到它的is属性
+    <keep-alive>保留状态，避免重新渲染
+
+三、Vue进阶
+1.slot插槽（内容分发）
+    不能在插槽位置绑定事件，没有效果
+    a.单个slot
+    b.具名slot (具有名字的插槽) 
+        混合父组件的内容与子组件自己的模块----->内容分发
+        父组件模板的内容再父组件作用域内编译；子组件模板的内容在子组件作用域内编译。
+
+2.transition过渡
+    Vue在插入、更新或者移除DOM时，提供多种不同方式的应用过渡效果。
+    (1)单元素/组件过渡
+        CSS过渡
+        CSS动画
+        结合animate.css动画库
+    (2)多个元素过渡（设置key）
+        当有相同标签的元素切换时，需要通过key特性设置唯一的值来标记以让Vue区分它们，否则Vue为了效率只会替换相同标签内部的内容。
+        diff算法的存在增加了节点的可复用性，所以同标签的过渡效果并不明显
+            mode:in-out:out-in
+    (3)多个组件过渡
+    (4)列表过渡（设置key）
+        <transition-group>不同于transition，它以一个真实元素呈现：默认为一个<span>,但是可以通过tag特性更换为其他元素。
+    
+3.生命周期
+    1)生命周期各个阶段
+        beforeCreate/careated   
+        beforeMount/mounted     
+        beforeUpdate/updated  
+        beforeDestroy/destroyed
+        什么时候能让一个组件销毁？ vm.isCreated:false
+    2)生命周期钩子函数的触发条件与作用
+
+4.swiper(轮播)学习
+    swiper的css、js和vue都得引入，结构满足swiper的基本要求，异步操作
+    mounted中赋值状态，状态改完，更新到dom中
+    swiper跟vue结合会有些不同，状态改完后，异步更新DOM。如果紧跟着状态结束后，立马new swiper会出现初始化过早的问题。所以，应该在updated生命周期中去更新节点。
+    弊端：一更新，就要重新new一个swiper，所以为了更好地体验，不建议写在updated中，应该自己去封装一个更好的组件，就可以达到一个可复用的目的。
+
+    轮播基本结构:
+    <div class="swiper-container a">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide" v-for="data in datalist">
+                {{data}}
+            </div>
+        </div>
+        <!-- 如果需要分页器 -->
+        <div class="swiper-pagination">
+        </div>
+    </div>
+
+5.自定义组件的封装
+    自定义封装swiper组件(基于swiper)
+        注意：防止swiper初始化过早
+
+     swiper组件的封装(组件有可复用性)
+        组件初始化在DOM创建完后，DOM在数据回来后才开始，其他组件更新状态也会导致swiper再次初始化。
+        diff算法
+      
+        <swiper :key="datalist.length">
+            <div class="swiper-slide" v-for="data in datalist">
+            {{data}}
+            </div>
+        </swiper>
+        Vue.component("swiper",{
+            template:`<div class="swiper-container a">
+                <div class="swiper-wrapper">
+                    <slot><slot>
+                </div>
+                <!-- 如果需要分页器 -->
+                <div class="swiper-pagination"></div>
+            </div>`,
+
+            mounted(){
+                new Swiper('.a',{
+                    //direction:'vertical'
+                    loop:true,
+                    //如果需要分页器
+                    pagination:{
+                        el: '.swiper-pagination',
+                    }
+                })
+            }
+        })
+        new Vue({
+            el:'#box',
+            data:{
+                datalist:[]
+            },
+            mounted(){
+                setTimeout(()=>{
+                    this.datalist=["111111","222222","3333333"]
+                },2000)
+            }
+        })
+
+6.自定义指令(操作底层DOM)
+    (1)自定义指令介绍directives
+        <div v-hello="'red'">aaaaaa</div>
+        <div v-hello="'pink'">bbbbbbbb</div>
+        <div v-hello="mycolor">cccccccc</div>
+        Vue.directive("hello",{
+            //inserted()生命周期只会执行一次
+            inserted(el,bind){
+                //指令-生命周期-创建
+                //插入  当前指令插入到父节点了
+                //el拿到的是当前指令的dom   封装的指令里面的东西是当成变量来对待的，跟一般指令一样。
+                //bind 传的是对象，放在属性上的值
+                el.style.background = bind.value
+            },
+            updated(el,bind){
+                //指令-生命周期-更新
+                el.style.background = bind.value
+            }
+        })
+        var vm = new Vue({
+            el:'#box',
+            data:{
+                mycolor:"red"
+            }
+        })
+
+    (2)钩子函数
+        *参数el,binding,vnode(vnode.context)
+        *bind,inserted,updated,componentUpdated,unbind
+    (3)函数简写
+    (4)自定义指令-轮播
+        *inserted插入最后一个元素时调用(vnode.context.datalist.length-1)
+        *this.$nextTick()
+
+    <div class="swiper-container a">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide" v-for="(data,index) in datalist" v-swipe="{
+                index:index
+                length:datalist.length
+            }">
+                {{data}}
+            </div>
+        </div>
+        <!-- 如果需要分页器 -->
+        <div class="swiper-pagination">
+        </div>
+    </div>
+    Vue.directive("swiper",{
+        inserted(el,bind){
+            //判断最后一个节点上树
+            if(bind.value.index === bind.value.length-1){
+                new Swiper('.a',{
+                    //direction:'vertical'
+                    loop:true,
+                    //如果需要分页器
+                    pagination:{
+                        el: '.swiper-pagination',
+                    }
+                })
+            }
+        }
+    })
+    new Vue({
+        el:'#box',
+        data:{
+            datalist:[]
+        },
+        mounted(){
+            setTimeout(()=>{
+                this.datalist=["111111","222222","3333333"]
+            },2000)
+        }
+    })
+
+四、Vue-cli
+1.单文件组件介绍以及脚手架的安装
+    Vue.component来定义全局组件,再用new Vue({el: '#container'}) 在每个页面内指定一个容器元素。
+    组件是全局定义，所以要求每个component中的命名不可以重复。字符串模板缺乏语法高亮显示,不支持CSS，当HTMl和JavaScript组件化时,CSS明显会被遗漏。组件没有构建步骤,限制只能使用HTML和ES6 JavaScript,而不能使用预处理器，如Pug(formerly Jade)和Babel。
+    文件扩展名为.vue的单文件组件为上述问题提供了解决方法,并且还可以使用webpack或Browserity等构建工具。
+    Node Package Manager(NPM)   Modern JavaScript with ES2015/16
+
+    脚手架安装 npm install -g @vue/cli
+
+    
+    <template>  -html代码,最多可以包含一个
+    <script>    -js代码,最多可以包含一个
+    <style>     -css代码,可以包含多个，src的路径是相对的
+    style标签    加上scoped属性,css局部生效
+    style标签    加上lang="scss",支持scss
+
+    单文件组件中引入别的组件:
+        全局组件(在components中写好组件)
+            引入 import navbar from './components/Navbar'
+            注册成全局组件   先模块化组件引入 import Vue from 'vue'  
+                            Vue.component("navbar",navbar)
+        局部组件
+            在页面直接写components:{
+                navbar:navbar,
+            }
+
+        代码覆盖，样式冲突的问题怎么解决？
+            在style标签里加上一个scoped属性，控制作用域，使得当前组件只用于当前作用域。
+        npm run lint自动修复代码格式
+        npm run bulid将写好的项目打包
+
+        express -e backend  后端创建文件夹
+        cd .\backend\       进入创建好后的项目文件夹
+        cnpm i              快速安装好整个项目依赖环境
+        把开发好的dist文件夹里面的所有内容复制或者移到前面后端开发好的backend文件夹底下的public文件夹下
+        npm start            启动后端项目
+        打开localhost:3000   就可以看到上线的项目
+
+2.vue-cli3.0的使用
+    npm install -g @vue/cli (一次全局安装)  node-sass需要单独处理
+    vue create myapp
+    打开项目不知道怎么启动，可以查看package.json文件里的scripts字段查看是什么脚本启动。
+    准备开发就启动npm run serve，项目写完后要将前端代码进行一个编译交给后端，就要执行npm run build生成dist文件。npm run lint命令是将代码进行一个检测修复。
+    src跟dist文件夹的区别:开发代码放在src文件夹下，生成的目录中在dist文件去，我们编译的开发的可以都通过npm run build放在dist文件夹中，最后交给后端上线。
+        *npm run serve  开发环境构建
+        *npm run build  生产环境构建
+        *npm run lint   代码检测工具(会自动修正)
+
+        Babel     必须安装(Vue跟ES6能被解析的环境)
+        TypeScript      ES6跟ES7的超级环境，如果安装了整个项目环境语言就是ES6跟ES7
+        Progressive Web App (PWA) Support   一种离线应用的开发方式
+        Router      引入Vue的路由
+        Vuex        做复杂的状态管理
+        CSS Pre-processors  css的预处理管理器，用sass、less环境时
+        linter / Formatter  标准写法，前端代码的规范性环境      
+                            Standard,Lint onsave,Lint and fix and commit
+        Unit Testing        测试时用    
+        E2E Testing         测试时用
+            In dedicated config files 选择直接的配置文件，方便修改
+
+            创建项目可能会出错，最大可能是node-sass包下载安装错误，出错后直接 cnpm install
+            如果安装快结束出错时可以直接Ctrl+c 强制退出进入创建的项目文件夹下将node_modules文件删除   删除后再在终端下载cnpm install 安装依赖就可以了
+
+    Vue中使用的模块化开发，每个作用域是互相访问不了的，必须引入使用    
+
+3.Vue.config.js(Vue的核心配置文件)的配置
+    (1)proxy代理
+    (你的前端应用跟后端API服务器没有运行在同一个主机上，那么就需要在开发环境下将API请求代理到API服务器，需要通过vue.config.js 中的 devServer.proxy选项来配置)
+        blocked 不要 CORS policy跨域组织，解决？
+        改变服务器运行状态，让服务器进行一些活动，配置反向代理。
+
+        允许域请求:Access-Control-Allow-Origin:*
+
+五、Vue-Router
+1.SPA概念
+    a.spa原理
+    b.优缺点
+
+2.vue-router
+    (1)开始
+        引入Vue            import Vue from 'vue'
+        引入Vue的路由       import Router from 'vue-router'
+        注册路由插件        Vue.use(Router)  
+                            const router = new Router({
+                                routers:[
+                                    {
+                                        path: '/film',
+                                        component: Film
+                                    },
+                                    {
+                                        path: '/cinema',
+                                        component: Cinema
+                                    }
+                                ]
+                            })
+    (2)动态路由匹配
+        {
+            path: '/detail/:id',    //动态路由  用id获取信息跳转，myid可以随便取名，但前面必须加:冒号
+            component: detail,
+        }
+        this.$router.push(`/flime/$(id)`)
+        this.$router.params.id      要id获取详细信息
+        列表跳转详情页面中，在路由中要做一个配置，叫做动态路由以及如何跳转和如何获取id信息的下一步操作
+    (3)嵌套路由  
+        路由页面的容器            <router-view></router-view>
+    (4)编程式导航(js跳转)  VS  声明式导航<router-link>
+        编程式导航(js跳转)          
+            路径跳转
+                this.$router.push(`/flime/$(id)`)
+                this.$router.params.id      要id获取详细信息
+            名字跳转
+                this.$router.push({name:"toDetails",params:{id:id}})    
+                name是路由名字,params是参数，传的是动态路由跳转接收跳转信息带的key值,一般情况下都是id值。
+        声明式导航<router-link>    
+            下面的activeClass是属性名，不可更改  myactive是自定义类名 
+            <ul>
+                <router-link to="/film" tag="li" activeClass="myactive">  
+                </router-link>
+            <ul>
+            style标签里面写上样式    .myactive:{ color:red;}
+
+    (5)命名路由
+        给写好的路由命名，名字可以随便起，但是最好是有意义，方便直接通过名字进行页面跳转。
+    (6)命名视图
+    (7)重定向和别名
+        {
+            path:"*",
+            redirect:"/home"
+        }
+    (8)HTML5　History模式
+        Vue支持两种模式
+            a.hash      #/home
+            b.history   /home
+
+            用history模式时，如果后台配置没弄好，因为我们的应用是哥但也客户端应用，如果后台没有正确配置，当用户在浏览器直接访问链接，就会返回404。所以，如果要在服务器增加一个覆盖所有情况的候选资源：如果URL匹配不到任何静态资源，则应该选择返回一个index.html页面，这个就是app依赖的页面。
+        路由守卫&路由拦截
+            a.全局拦截    /   全局守卫      
+            表示将来任何一个路由在跳转的时候都会进入到下面的回调函数中，进行判断
+                router.beforeEach((to,from,next) => {
+                    if(盘查条件){
+                        if(此时已经登陆了){
+                            next();
+                        }else{
+                            next("/login");
+                        }
+                    }else{
+                        next();
+                    }
+                })
+            b.单个拦截    /   局部守卫(组件内的守卫)
+            beforeRouteEnter (to, from, next) {
+                // 在渲染该组件的对应路由被 confirm 前调用
+                // 不！能！获取组件实例 `this`
+                // 因为当守卫执行前，组件实例还没被创建
+            },
+            beforeRouteUpdate (to, from, next) {
+                // 在当前路由改变，但是该组件被复用时调用
+                // 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候，
+                // 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+                // 可以访问组件实例 `this`
+            },
+            beforeRouteLeave (to, from, next) {
+                // 导航离开该组件的对应路由时调用
+                // 可以访问组件实例 `this`
+            }
+
+3.路由原理
+    (1)hash路由 ==>  location.hash 切换
+                     window.onhashchange 监听路径的切换
+    (2)history路由 ==> history.pushState 切换
+                       window.onpopstate 监听路径的切换
+
+4.项目
+    (1)启动案例项目开发
+    (2)利用Vue-router搭建项目SPA结构
+
+
+5.项目数据请求：
+        允许域请求:Access-Control-Allow-Origin:*
+        但是有时候即使页面写了跟上述允许域条件一样为任何允许域，但依然拿不到数据，即使设置反向代理也没有用，是因为在项目开发过程为了避免出现恶意请求数据或者无效请求等操作而设置有效字段防止了以上操作，在Headers里的请求部分可以找到设置的字段。
+        mounted(){
+            axios({
+                url:".....",    //请求地址
+                headers:{   //请求头部分设置的有效字段
+                    'X-Client-Info':'{.....}',
+                    'X-Host':'mall.film-ticket.film.list'
+                }
+            }).then(res=>{
+                this.datalist = res.data.data
+            })
+        }
+
+6.图标库iconfont的引用
+    将公共的图标文件下载到public静态资源
+    在这个公共文件里面的index.html里面引入  <link rel="icon" href="<%= BASE_URL %>iconfont/iconfont.css">
+
+7.轮播设计
+    swiper初始化过早的原因：整个组件加载时，作为孩子组件的swiper马上就会创建，而因为数据并未及时加载回来，所以子组件拿到的是空数组，空数组传进去就会导致无法进行swiper-slide，swiper组件还是会正常进行mounted周期组件初始化，但是没有数据及时接收，所以要用到diff算法。
+    <swiper :key="looplist.length">
+        <div class="swiper-slide" v-for="data in looplist" :key="data.bannerId">
+            <img :src="data.imgUrl" />
+        </div>
+    </swiper>
+    封装一个swiper组件
+        <template>
+            <div :class="swiper-container 用到swiper的名字">
+                <div class="swiper-wrapper">
+                    <slot></slot>
+                </div>
+                <!-- 如果需要分页器 -->
+                <div class="swiper-pagination">
+                </div>
+            </div>
+        </template>
+
+        //模块化引入    前提是安装好了swiper    cnpm install --save swiper  
+        //下载的swiper组件里还有css文件同样也需要引入
+        import 'swiper/dist/css/swiper.css'
+        import Swiper from 'swiper'
+        mounted(){
+                new Swiper('.用到swiper的名字',{
+                    //direction:'vertical'
+                    loop:true,
+                    autoplay:{  //控制轮播字段速度
+                        delay:2000
+                    }
+                    //如果需要分页器
+                    pagination:{
+                        el: '.swiper-pagination',
+                    }
+                })
+            }
+        //再去页面引用
+        import swiper from '@/views/Food/Swiper'
+        export default{
+            components:{
+                swiper
+            }
+        }
+
+8.吸顶、固钉效果
+    //用到监听、滚动事件
+    //在mounted生命周期里面做一个监听请求
+    mounted(){
+        window.onscroll = this.handleScroll;
+    },
+    methods:{
+        handleScroll(){
+            //对滚动距离与轮播高度进行一个比例判断
+            //获取滚动距离可以用原生DOM操作  document.documentElement.scrollTop
+            //轮播高度      用ref挂载到组件上<swiper ref="myswiper"></swiper>能拿到原生节点     this.$refs.myswiper.$el.offsetHeight
+            if(document.documentElement.scrollTop >= this.$refs.myswiper.$el.offsetHeight){
+                this.isFixed = true;
+            }else{
+                this.isFixed = false;
+            }
+        }
+    }
+    //对节点内容部分可以用一个三目运算来操作
+    <foodheader :class="isFixed?'fixed':''"></foodheader>
+    //提前定义好这个固定状态
+    data(){
+        return {
+            looplist:[],
+            isFixed: false,
+        }
+    }
+    //运用好后再页面的style标签里进行样式修改
+    .fixed{
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        /* 下面自己设置宽高 */
+    }
+
+    注意：如果设置多页面，那么在mounted()里面的监听事件window.onscroll = this.handleScroll;必须做出改变，否则会影响写详情页面时的一个页面效果。
+    所以可以设置只在当前页面这个组件里进行事件监听，一旦脱离这个页面就阻止这个事件的进行，进行事件的解绑。
+    在这里可以用到生命周期里的beforeDestroy函数，在mounted()的下面写一个beforeDestroy()用于事件解绑就可以达到目的。
+    beforeDestroy(){
+        window.onscroll = null;
+    }
+    
+
+9.详情页面
+    //通过id获取所传递的详情信息, this.$router.params.id,  this.id
+    props:['id'],
+    axios({
+        url:`https://..../.../gateway?foodId=${this.id}&k=...`,
+        headers:{
+            '': '{}',
+            '': '{}',
+        }.then(res=>{
+
+        })
+    })
+    数据一开始初始渲染为null，会报错，后面数据响应接收回来，才会重新对比渲染出来。
+    此时为了避免数据还未接收成功页面就直接初始渲染报错的情况发生，应该怎么做？
+        数据名称在初始时为null，节点位置设置进行一个判断，节点处设置v-if="数据名称"，为真渲染，为假则不渲染。
+
+10.轮播组件
+    //页面上的使用
+    <swiper>
+        <div class="swiper-slide" v-for="data in foodInfo.list" :key="data.id">
+        <img :src="data.avatarAddress" />
+        </div>
+    </swiper>
+    //在页面导入并且注册成局部组件   
+    import swiper from '@/views/Detail/Swiper'
+    export default{
+        components:{
+            swiper
+        }
+    }
+    //新封装一个轮播组件
+    <template>
+            <div :class="swiper-container 用到swiper的名字">
+                <div class="swiper-wrapper">
+                    <slot></slot>
+                </div>
+                <!-- 如果需要分页器 -->
+                <div class="swiper-pagination">
+                </div>
+            </div>
+        </template>
+
+        //模块化引入    前提是安装好了swiper    cnpm install --save swiper  
+        //下载的swiper组件里还有css文件同样也需要引入
+        import 'swiper/dist/css/swiper.css'
+        import Swiper from 'swiper'     //js
+        mounted(){
+            new Swiper('.用到swiper的名字',{
+                slidesPerView: 3,       //一页显示几个
+                spaceBetween: 30,       //两个之间的距离
+                freeMode: true,
+                //如果需要分页器
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            })
+        }
+        注意：如果同一个页面使用了两个或者两个以上用到了swiper轮播组件，且显示效果不同，可以组件父传子通过属性来传，但因为都是用的swiper所以class名字一样，导致组件无法分辨，每次页面刷新会达不到想要的效果。所以在页面使用swiper的时候，可以修改当前swiper的class名在用的时候就会不一样便于区分。
+        第一个class是用于显示时的区分，第二个class是为了组件创建初始状态的时候知道是用在哪个地方。
+        这里也可以用id名，只要能让swiper进行区分就行
+        <swiper perview="4" class="swiper1" myclassname="swiper1"></swiper>
+        <swiper perview="3" class="swiper2" myclassname="swiper2"></swiper>
+        //子组件中用props接收父组件的传递的属性值
+        props:["perview","myclassname"],
+        //mounted生命周期里也要修改
+        mounted(){
+            new Swiper('.'+this.myclassname,{
+                slidesPerView: this.perview,       //一页显示几个
+                spaceBetween: this.myclassname==='swiper1'?20:10,       //两个之间的距离
+                freeMode: true,
+                //如果需要分页器
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            })
+        }
+
+11.better-scroll实现页面中拖动滚动，拉动属性等功能
+主要是利用transform、transition等css样式配合实现效果
+    要先下载better-scroll库    cnpm install --save better-scroll 
+    页面中导入better-scroll库   import BetterScroll from 'better-scroll'
+    数据是异步获取，所以要注意better-scroll在new的时候不能太早了，要在数据完全插入到DOM节点并加载更新完节点数据后才能使用。
+    在这里可以运用到nextTick()方法在等到数据插到DOM节点结束之后才会执行这个回调函数，可以写在这里
+    this.$nextTick(()=>{
+        new BetterScroll(".滚动名称",{
+            scrollbar:{
+                fade:true,
+                interactive: false
+            }
+        })
+    })
+    //注意修正位置避免使用时，滚动条超出范围
+    .滚动名称{
+        position: relative;
+    }
+    //动态设置一个内联样式，通过对象控制不同设备情况下高度进行处理
+    <div class="滚动名称" :style="mystyle"></div>
+    data(){
+        mystyle:{
+            height：'0px',
+        }
+    }
+    //在mounted()里面设置取到设备高度
+    mounted(){
+        this.mystyle.height = document.documentElement.clientHeight - 初始设置的头部或者底部固定区域高度 + "px";
+    }
+
+12.事件总线实例
+    //需要new一个空的实例对象，但是注意如果只在当前页面创建空实例对象会导致在其他页面无法使用。可以利用Vue的模块化开发特性，创建一个核心js用于创建bus，然后在需要使用的页面直接导入。
+    //单独核心js中
+    import Vue from 'vue'
+    var bus = new Vue();
+    export default bus;
+
+    //在App.vue中使用监听事件
+    <tabbar v-show="isShow"></tabbar>
+    import bus from '@/bus'
+    data(){
+        return {
+            isShow: true
+        }
+    }
+    beforeMount(){
+        bus.$on("management",(data)=>{
+            this.isShow = data;
+        })
+    }
+    
+    //在触发页面部分
+    import bus from '@/bus'
+    beforeMount(){
+        bus.$emit("management",false)
+    }
+    beforeDestroy(){
+        bus.$emit("management",true)
+    }
+
+六、状态管理Vuex
+    有时候在页面使用同一个bus事件总线，因为触发同一个事件，启的同一个事件监听，但需求确实不一样，数据接收容易出现混乱。在中大需求时，需要用到较多的非父子通信，则不能使用非父子事件总线，因为耦合度过高，事件也容易混乱，这个时候就需要用到Vuex，事件状态管理。
+
+1.Vuex使用
+    Vuex是一个专门为Vue.js 应用程序开发的状态管理模式。它采用集中式存储管理应用的所有组件的状态，并以相应的规则保证状态以一种可预测的方式发生改变。
+    
+    页面出现重复切换，服务器重复请求相同数据，为减少负担，可以将重复的数据进行一个缓存。缓存只是存储在内存中，一旦刷新页面，缓存的数据就会释放，页面会重新加载数据。
+    
+    Vuex功能
+        a.状态管理 (非父子通信)
+        b.数据快照 
+        c.方便管理和调试，时光旅行
+
+    (1)state单一状态树，每个应用将仅仅包含一个store实例。
+    //自定义的共享状态
+        * this.$store.state.状态名字
+        * ...mapState(["title"])            //ES6展开合并运算符
+
+        import AllA from './moduleA'    //导入所有接口
+        import {A1,A2} from './moduleB'     //只导入几个接口
+        import {A1 as MyA1} from './moduleB'        //只导入几个接口并且可以更改接口名称
+        注：此块是ES6模块化导入、导出。导入所有接口的js文件里是作出了全部导出default export，能单独几个导入的在其js文件里是export并没有作出default全部导出
+    (2)getters:可以从store中的state中派生出一些状态，getters的返回值会根据它的依赖性被缓存起来，且只有当它的依赖值发生了改变才会被重新计算。
+    //处理原始状态，过滤出想要的那部分数据
+        * 可以认为是store的计算属性
+        * this.$store.getters.计算属性名字
+        * ...mapGetters(["getFilms"])
+    (3)mutation: 更改Vuex的store中的状态的唯一方法是提交mutation
+    //唯一修改状态的位置
+        * 常量的设计风格
+        ES6中的将对象中的一个属性当成变量来写
+            在另一个js文件中单独收齐所有常量命名
+                export const  SOME_MUTATION = 常量命名
+            在store实例js文件中导入
+                import {SOME_MUTATION} from '常量命名收齐的js文件路径'
+                [SOME_MUTATION](state){
+                    //mutate state
+                }
+        * 必须是同步函数
+            this.$store.commit("type","payload");
+    (4)actions可以异步处理操作
+        * Action 提交的是mutation，而不是直接变更状态   
+            因为Action是做异步处理操作，修改的地方只有在mutation，这是一个监控，监控到所有的修改，vuex是一个严格的单向数据流过程。
+        * Action 可以包含任意异步操作
+        * this.$store.dispatch("type","payload");
+
+2.注意：
+    (1)应用层级的状态应该集中到单个store对象中。
+    (2)提交mutation是更改状态的唯一方法，并且这个过程是同步的。
+    (3)异步逻辑都应该封装到action里面。
+   
+3.vue devtools
+    vue-devtools vue项目调试的工具，可以在vue.js官方文档中找到链接跳转安装插件，用于vue项目调试。
+    可以时光追溯检测到state数据状态变化情况
+   
+4.Vuex在项目中的使用  
+    
+
+七、热门组件库
+1.使用第三方插件
+    vue.js/awesome-vue#components--libraries
+
+2.使用第三方UI框架
+    饿了么UED团队推出的vue前端框架
+    (1)PC框架：(element UI， iview)
+
+    (2)移动端框架：(mint UI、vant)
+
+3.移动端事件相关
+    (1)click事件300ms延迟
+        a. 移动web页面上的click事件响应都要慢上300ms
+        b. 移动设备访问web页面时往往需要“双击” 或者 “捏开”放大页面后来看清页面的具体内容。
+        c. 正式为了确认用户是“单击”还是“双击”，Safari需要300ms的延迟来判断。
+        d. 后来的iPhone也一直沿用这样的设计，同时Android也借鉴并沿用了这样的设计。
+        e. 于是“300毫秒的延迟”就成为了一个默认的规范。
+
+    (2)Zepto.js
+        Zepto是一个轻量级的针对现代高级浏览器的JavaScript库，它与jQuery有着类似的API。如果你会用jQuery，那么你也会用zepto，zepto使用需要注意一下几点。
+            a.提供jQuery的类似的API，但并不是100%覆盖jQuery；
+            b.Zepto不支持旧版本的Internet Explorer浏览器( < 10
+            c.Zepto添加了完整的touch手势支持，解决300ms延时，(tap取代click，需要引入zepto.touch.js)
+                * 移动端浏览器上默认支持四个事件：touchstart, touchmove, touchend, touchcancel四个事件
+                * tap事件 touchstart、touchmove、touchend 
+
+        jQuery与Zepto异同：https://www.cnblogs.com/colima/p/5289386.html
+
+    (3)Hammer.js
+        hammerJS是一个优秀的、轻量级的触屏设备手势库。
+            基于
+        npm install --save vue-touch@next
+
+    (4)服务器端渲染(SSR)
+
+
+-----------------------------------------------------------------
+1.Axios是什么？
+    Axios 是一个基于promise的HTTP库，可以用在浏览器和node.js 中。
+    特性：    
+        a. 从浏览器中创建 XMLHttpRequests
+        b. 从 node.js 创建 http 请求
+        c. 支持 Promise API
+        d. 拦截请求和响应
+        e. 转换请求数据和响应数据
+        f. 取消请求
+        g. 自动转换 JSON 数据
+        h. 客户端支持防御 XSRF
+
+2.后台传输图片路径是处理过的，并不是直接路径，怎么解决？
+    1）methods里面写一个方法 changePath() ,并将这个方法与照片标签进行动态绑定 :src="changePath(data.img)",将原始图片传参到方法里面,然后在方法里面返回处理好后的路径就能成功拿到正确路径，将图片渲染到页面上去。
+    2）使用一个过滤器，将原始数据送到过滤器这个管道里面，最终过滤器会返回处理后的一个完整的数据，做格式化转化的一个概念，过滤器是将数据转化成一个格式化。
+        <img :src="data.img | 过滤器名字" />
+        Vue.filter("过滤器名字",回调函数function(data){
+            return 返回值(返回值是处理后的格式化数据)
+        })
+
+3.数组映射，用到map
+        var newlist = list.map(item=>`kerwin${item}`);
+    map映射后
+    Vue.filter("actiorfilter",function(data){
+        var newlist = data.map(item=>item.name)
+        return newlist.join(' ')
+    })
+
+4.store、localStorage、cookie的区别
+localStorage的数据是永久的
+store的数据只是进行一个页面缓存，一旦刷新，就会释放掉这些数据。
+cookie是一段时间的数据
+
+
+Vuex四大模块
+state、getters、mutations、actions
+getters把状态管理机里面的东西映射
+
+v-if把节点隐藏，v-show是将其隐藏，但是他还是在页面上的 
