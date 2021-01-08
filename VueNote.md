@@ -1,7 +1,7 @@
 # Alarnzearn
 
 #二、Vue组件
-##1.axios与fetch实现数据请求
+## 1.axios与fetch实现数据请求
 &nbsp;&nbsp;&nbsp;&nbsp;(1)fetch(W3C标准)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;目前未普遍用原因:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`XMLHttpRequest`是一个设计粗糙的`API`，配置和调用的方式非常混乱，而且基于事件的异步模型写起来不友好。
@@ -48,7 +48,7 @@
             console.log(response.data.data.token);
         })
 ```
-##2.计算属性
+## 2.计算属性
    &nbsp;&nbsp;&nbsp;&nbsp; 复杂逻辑，模板难以维护
     &nbsp;&nbsp;&nbsp;&nbsp;(1) 基础例子
     &nbsp;&nbsp;&nbsp;&nbsp;(2) 计算缓存  VS  methods
@@ -68,7 +68,7 @@
         }
     }
 ```
-##3.Mixins
+## 3.Mixins
     &nbsp;&nbsp;&nbsp;&nbsp;虚拟dom和diff算法
       &nbsp;&nbsp;&nbsp;&nbsp;  最大程度保证组件和节点的可复用性，减少了对于DOM的频繁操作，增加网页利用性。
    &nbsp;&nbsp;&nbsp;&nbsp; 1）把树按照层级分解
@@ -76,21 +76,21 @@
    &nbsp;&nbsp;&nbsp;&nbsp; 3）同组件对比
        ` only<div> `      `component`
 
-##5.组件化开发基础
+## 5.组件化开发基础
     &nbsp;&nbsp;&nbsp;&nbsp;扩展HTML元素，封装可重用的代码
 
-##6.组件注册方式
+## 6.组件注册方式
    &nbsp;&nbsp;&nbsp;&nbsp; a.全局组件
     &nbsp;&nbsp;&nbsp;&nbsp;    `Vue.component`
 &nbsp;&nbsp;&nbsp;&nbsp;    b.局部组件
 &nbsp;&nbsp;&nbsp;&nbsp;        局部组件不可以随便使用
 
-##7.组件缩写方式与Vue实例的区别
+## 7.组件缩写方式与Vue实例的区别
  &nbsp;&nbsp;&nbsp;&nbsp;   *自定义组件需要有一个root element
 &nbsp;&nbsp;&nbsp;&nbsp;  *父子组件的data是无法共享的,父子组件之间的作用域是隔离的
 &nbsp;&nbsp;&nbsp;&nbsp;    *组件可以有data,methods,computed....,但是data必须是一个函数
 
-##8.组件通信
+## 8.组件通信
    &nbsp;&nbsp;&nbsp;&nbsp; 1.父子组件传值（props down,events up）属性向下传，如果传动态值要用冒号v-bind绑定动态值。如果组件是已经写好的，但是使用时又不确定是否使用有误，可以在组件设置属性验证。
         通过属性往子组件传递，属性传值，如果要传父组件状态，别忘了动态绑定. 父传子的时候，子组件用props接收，孩子可以用this.值名随便使用.
         子传父靠事件，事件定义在父组件里面.(事件符名字可以随便起，子组件传的时候的$符号是固定触发事件的方法)
@@ -111,6 +111,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        *`mouted`生命周期中进行监听
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        只要一个组件愿意用`$on()`来监听，就有另一个组件能够用`$emit()`来触发,但是触发的名字要与坚挺的名字一致，否则就匹配不上。
         
-##9.动态组件
+## 9.动态组件
 &nbsp;&nbsp;&nbsp;&nbsp;    <component>元素，动态地绑定多个组件到它的is属性
 &nbsp;&nbsp;&nbsp;&nbsp;    <keep-alive>保留状态，避免重新渲染
